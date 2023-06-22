@@ -123,7 +123,7 @@ static WC_INLINE int wolfSSL_LastError(int err)
 static int TranslateIoError(int err)
 {
     size_t errstr_offset;
-    char errstr[WOLFSSL_STRERROR_BUFFER_SIZE] = { "\tGeneral error: " };
+    char errstr[WOLFSSL_STRERROR_BUFFER_SIZE] = { "\tGeneral error" };
 
     if (err > 0)
         return err;
@@ -156,6 +156,7 @@ static int TranslateIoError(int err)
     }
 
 #if defined(_WIN32)
+    strcat_s(errstr, sizeof(errstr), ": ");
     errstr_offset = strlen(errstr);
     FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
