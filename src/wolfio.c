@@ -20,6 +20,7 @@
  */
 
 
+#define WOLFSSL_STRERROR_BUFFER_SIZE 1024
 
 #ifdef HAVE_CONFIG_H
     #include <config.h>
@@ -121,6 +122,9 @@ static WC_INLINE int wolfSSL_LastError(int err)
 
 static int TranslateIoError(int err)
 {
+    size_t errstr_offset;
+    char errstr[WOLFSSL_STRERROR_BUFFER_SIZE] = { "\tGeneral error: " };
+
     if (err > 0)
         return err;
 
@@ -151,21 +155,17 @@ static int TranslateIoError(int err)
         return WOLFSSL_CBIO_ERR_CONN_CLOSE;
     }
 
-#if defined(_WIN32) && defined(DEBUG_WOLFSSL)
-	char errstr[1024] = { "\tGeneral error: "};
-	int offset = strlen(errstr);
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,   // flags
-		NULL,                // lpsource
-		err,                 // message id
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),    // languageid
-		errstr+ offset,              // output buffer
-		sizeof(errstr)- offset,     // size of msgbuf, bytes
-		NULL);               // va_list of arguments
-
-		WOLFSSL_MSG(errstr);
-#else
-    WOLFSSL_MSG("\tGeneral error");
+#if defined(_WIN32)
+    errstr_offset = strlen(errstr);
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        err,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPSTR)(errstr + errstr_offset),
+        (DWORD)(sizeof(errstr) - errstr_offset),
+        NULL);
 #endif
+    WOLFSSL_MSG(errstr);
     return WOLFSSL_CBIO_ERR_GENERAL;
 }
 #endif /* USE_WOLFSSL_IO || HAVE_HTTP_CLIENT */
