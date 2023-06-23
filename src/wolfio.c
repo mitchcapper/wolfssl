@@ -127,7 +127,7 @@ static int TranslateIoError(int err)
 #ifdef  _WIN32
     size_t errstr_offset;
     char errstr[WOLFSSL_STRERROR_BUFFER_SIZE];
-#endif //  _WIN32
+#endif /* _WIN32 */
 
 
     if (err > 0)
